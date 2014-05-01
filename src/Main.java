@@ -1,8 +1,18 @@
-/*		Braden Starcher | Bit Shifter 0.1 |
- *		Simple bit shifter. Mode radials dictate what value will be 
+/*		Braden Starcher | Bit Shifter 0.1.2 |
+ * 
+ *		Simple bit shifter/bitwise operation and value converter. Mode: radials dictate what value will be 
  *		accepted in the Second value field, only accepts 32-bit integers.
  *		4/10/2014 
+ *		*****************************************************************
+ *
+ *		Adding ASCII converter to take strings and convert them to decimal, hex, and binary.
+ *		Will write code for bit shift/bitwise operations at a later date. 
+ *		Also added default value of shift operation without setting value in the second value field to 1.
+ *		Still need to mess with the image background so portability is not an issue.   
+ *		4/30/2014
+ *      ******************************************************************
  */		
+
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
@@ -43,6 +53,7 @@ public class Main extends JFrame {
 	private JTextField binaryField;
 	private JTextField hexField;
 	private JTextField secondValue;
+	private JTextField ASCIIField;
 
 	/**
 	 * Launch the application.
@@ -66,7 +77,7 @@ public class Main extends JFrame {
 	public Main() {
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 491);
+		setBounds(100, 100, 600, 491);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -76,24 +87,29 @@ public class Main extends JFrame {
 		lblBitshifter.setFont(new Font("Lucida Console", Font.PLAIN, 16));
 		lblBitshifter.setBounds(13, 9, 153, 21);
 		contentPane.add(lblBitshifter);
+
+		final JRadioButton ASCIIRadio = new JRadioButton("");
+		ASCIIRadio.setSelected(true);
+		ASCIIRadio.setBounds(555, 116, 22, 23);
+		contentPane.add(ASCIIRadio);
 		
 		final JRadioButton byteRadio = new JRadioButton("");
-		byteRadio.setSelected(true);
-		byteRadio.setBounds(319, 91, 137, 21);
+		byteRadio.setBounds(555, 171, 33, 21);
 		contentPane.add(byteRadio);
 		
 		final JRadioButton binaryRadio = new JRadioButton("");
-		binaryRadio.setBounds(319, 171, 137, 21);
+		binaryRadio.setBounds(555, 218, 27, 21);
 		contentPane.add(binaryRadio);		
 		
 		final JRadioButton hexRadio = new JRadioButton("");
-		hexRadio.setBounds(319, 249, 33, 21);
+		hexRadio.setBounds(555, 274, 22, 21);
 		contentPane.add(hexRadio);	
-		
+																					//ADD RADIO BUTTONS TO THIS	
 		ButtonGroup bGroup = new ButtonGroup();
 		bGroup.add(binaryRadio);
 		bGroup.add(byteRadio);
 		bGroup.add(hexRadio);
+		bGroup.add(ASCIIRadio);
 																			//HELP MENU
 		JMenuBar menubar = new JMenuBar();
 		JMenu file = new JMenu("Help");       
@@ -106,7 +122,8 @@ public class Main extends JFrame {
             		     "Enter a value into a field\n Select which radix you are converting from\n"
             			+"Select Convert to see the entered value in Integer, Binary, Hex radix\n"
             		    +"The mode you select also dictates what is input into the second value field for use of bitwise operations\n"
-            			+"If you are not seeing expected results, consider that this program only works with 32-bit signed ints.", 
+            			+"Enter any string with ASCII characters to convert to or from ASCII."
+            			+"If you are not seeing expected results, consider that this program only works with 32-bit signed ints and check the radial buttons.\n",
             		    "How to Use BitShifter",
             		    JOptionPane.PLAIN_MESSAGE);
             }
@@ -116,57 +133,81 @@ public class Main extends JFrame {
         setJMenuBar(menubar);        
         
 		JLabel lblByte = new JLabel("Integer");
-		lblByte.setBounds(195, 73, 54, 12);
+		lblByte.setBounds(319, 150, 54, 12);
 		contentPane.add(lblByte);
 		
 		secondValue = new JTextField();
-		secondValue.setBounds(13, 357, 260, 18);
+		secondValue.setBounds(13, 410, 443, 18);
 		contentPane.add(secondValue);
 		secondValue.setColumns(10);
 		
 		byteField = new JTextField();		
-		byteField.setBounds(130, 94, 184, 18);
+		byteField.setBounds(144, 171, 405, 18);
 		contentPane.add(byteField);
 		byteField.setColumns(10);
 		
 		JLabel lblBinary = new JLabel("Binary");
-		lblBinary.setBounds(201, 151, 42, 12);
+		lblBinary.setBounds(325, 197, 42, 12);
 		contentPane.add(lblBinary);
 		
 		binaryField = new JTextField();
 		binaryField.setColumns(10);
-		binaryField.setBounds(130, 172, 184, 18);
+		binaryField.setBounds(144, 218, 405, 18);
 		contentPane.add(binaryField);
 		
 		hexField = new JTextField();
 		hexField.setColumns(10);
-		hexField.setBounds(130, 250, 184, 18);
+		hexField.setBounds(144, 277, 405, 18);
 		contentPane.add(hexField);
 		
 		JLabel lblHex = new JLabel("Hex");
-		lblHex.setBounds(205, 229, 33, 12);
-		contentPane.add(lblHex);
-																				//RIGHT SHIFT BUTTOn
+		lblHex.setBounds(330, 248, 33, 12);
+		contentPane.add(lblHex);		
+		
+		JLabel lblAscii = new JLabel("ASCII");
+		lblAscii.setBounds(330, 96, 33, 14);
+		contentPane.add(lblAscii);
+		
+		ASCIIField = new JTextField();
+		ASCIIField.setColumns(10);
+		ASCIIField.setBounds(143, 121, 406, 18);
+		contentPane.add(ASCIIField);
+																				//RIGHT SHIFT BUTTON
 		JButton rightShiftButton = new JButton(">>");
 		rightShiftButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(byteRadio.isSelected()) {
 					int val = Integer.parseInt(byteField.getText());
-					int i = Integer.parseInt(secondValue.getText());
+					int i = 1; 
+					try {
+						i = Integer.parseInt(secondValue.getText());
+					} catch (NumberFormatException nfe) {
+						i = 1; 
+					}
 					int product = val >> i; 
 					byteField.setText(String.valueOf(product));
 					binaryField.setText(Integer.toBinaryString(product));
 					hexField.setText(Integer.toHexString(product));
 				} else if(binaryRadio.isSelected()) {
 					int val = Integer.parseInt(binaryField.getText(), 2);
-					int i = Integer.parseInt(secondValue.getText(), 2);
+					int i = 1; 
+					try {
+						i = Integer.parseInt(secondValue.getText(), 2);
+					} catch (NumberFormatException nfe) {
+						i = 1; 
+					}
 					int product = val >> i; 
 					byteField.setText(String.valueOf(product));
 					binaryField.setText(Integer.toBinaryString(product));
 					hexField.setText(Integer.toHexString(product));
 				} else if(hexRadio.isSelected()) {
 					int val = Integer.parseInt(hexField.getText(), 16);
-					int i = Integer.parseInt(secondValue.getText(), 16);
+					int i = 1;
+					try {
+						i = Integer.parseInt(secondValue.getText(), 16);
+					} catch (NumberFormatException nfe) {
+						i = 1; 
+					}
 					int product = val >> i; 
 					byteField.setText(String.valueOf(product));
 					binaryField.setText(Integer.toBinaryString(product));
@@ -177,27 +218,42 @@ public class Main extends JFrame {
 		});
 		rightShiftButton.setBounds(13, 248, 70, 21);
 		contentPane.add(rightShiftButton);
-		
+																					//LEFT SHIFT BUTTON
 		JButton leftShiftButton = new JButton("<<");
 		leftShiftButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(byteRadio.isSelected()) {
 					int val = Integer.parseInt(byteField.getText());
-					int i = Integer.parseInt(secondValue.getText());
+					int i = 1;
+					try {
+						i = Integer.parseInt(secondValue.getText());
+					} catch (NumberFormatException nfe) {
+						i = 1;
+					}
 					int product = val << i; 
 					byteField.setText(String.valueOf(product));
 					binaryField.setText(Integer.toBinaryString(product));
 					hexField.setText(Integer.toHexString(product));
 				} else if(binaryRadio.isSelected()) {
 					int val = Integer.parseInt(binaryField.getText(), 2);
-					int i = Integer.parseInt(secondValue.getText(), 2);
+					int i = 1;
+					try {
+						i = Integer.parseInt(secondValue.getText(), 2);
+					} catch (NumberFormatException nfe) {
+						i = 1;
+					}
 					int product = val << i; 
 					byteField.setText(String.valueOf(product));
 					binaryField.setText(Integer.toBinaryString(product));
 					hexField.setText(Integer.toHexString(product));
 				} else if(hexRadio.isSelected()) {
 					int val = Integer.parseInt(hexField.getText(), 16);
-					int i = Integer.parseInt(secondValue.getText(), 16);
+					int i = 1;
+					try {
+						i = Integer.parseInt(secondValue.getText(), 16);
+					} catch (NumberFormatException nfe) {
+						i = 1; 
+					}
 					int product = val << i; 
 					byteField.setText(String.valueOf(product));
 					binaryField.setText(Integer.toBinaryString(product));
@@ -362,30 +418,55 @@ public class Main extends JFrame {
 					binaryField.setText(binary);
 					
 				}
+				else if(ASCIIRadio.isSelected()) {
+					byte[] ascii = ASCIIField.getText().getBytes();
+					StringBuilder binary = new StringBuilder();
+					for (byte b : ascii) {
+						int val = b;
+						for (int i = 0; i < 8; i++) {
+							binary.append((val & 128) == 0 ? 0 : 1);
+							val <<= 1;
+						}						
+					}
+					binaryField.setText(binary.toString());
+					//ASCII to binary
+					String asciiString = ASCIIField.getText();
+					String asciiDec = "";
+					for(char c : asciiString.toCharArray()) 
+						asciiDec += (int)c; 
+					byteField.setText(asciiDec);
+					//ASCII to decimal
+					int hex = Integer.parseInt(asciiDec);
+					hexField.setText(Integer.toHexString(hex));
+					
+				}
+				
 				
 			}
 		});
-		btnConvert.setBounds(170, 295, 103, 21);
+		btnConvert.setBounds(295, 304, 103, 21);
 		contentPane.add(btnConvert);
 		
 		JLabel lblConvertFrom = new JLabel("Mode:");
-		lblConvertFrom.setBounds(321, 73, 103, 12);
+		lblConvertFrom.setBounds(143, 73, 42, 12);
 		contentPane.add(lblConvertFrom);
 		
 		JLabel lblOperateWith = new JLabel("Second value/bits to shift:");
 		lblOperateWith.setFont(new Font("Lucida Console", Font.BOLD, 13));
-		lblOperateWith.setBounds(13, 336, 243, 12);
+		lblOperateWith.setBounds(10, 387, 243, 12);
 		contentPane.add(lblOperateWith);
-					
-		JLabel bgLabel = new JLabel();
-		bgLabel.setBounds(12, 150, 434, 311);
-		bgLabel.setIcon(new ImageIcon("C:\\Java\\workspace\\BitShifter\\src\\bitshifter.png"));
-		contentPane.add(bgLabel);
 		
 		JLabel lblFirstValue = new JLabel("First value:");
 		lblFirstValue.setFont(new Font("Lucida Console", Font.BOLD, 13));
 		lblFirstValue.setBounds(131, 49, 118, 12);
 		contentPane.add(lblFirstValue);
+		
+		
+		
+		JLabel bgLabel = new JLabel();
+		bgLabel.setBounds(160, 128, 434, 311);
+		bgLabel.setIcon(new ImageIcon("C:\\Java\\workspace\\BitShifter\\src\\bitshifter.png"));
+		contentPane.add(bgLabel);
 		
 				
 		
