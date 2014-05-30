@@ -54,6 +54,7 @@ public class Main extends JFrame {
 	private JTextField hexField;
 	private JTextField secondValue;
 	private JTextField ASCIIField;
+	ASCIIDecoder ascii = new ASCIIDecoder();
 
 	/**
 	 * Launch the application.
@@ -396,7 +397,8 @@ public class Main extends JFrame {
 				if(byteRadio.isSelected()) {
 					int i = Integer.parseInt(byteField.getText());
 					hexField.setText(Integer.toHexString(i));
-					binaryField.setText(Integer.toBinaryString(i));					
+					binaryField.setText(Integer.toBinaryString(i));
+					ASCIIField.setText(ascii.intToASCII(i));
 				}
 				else if(binaryRadio.isSelected()) {
 					//binary to decimal 
@@ -406,7 +408,9 @@ public class Main extends JFrame {
 					//binary to hex 
 					String decimalString = byteField.getText();
 					int hex = Integer.parseInt(decimalString);
-					hexField.setText(Integer.toHexString(hex));				
+					hexField.setText(Integer.toHexString(hex));
+					//toAscii
+					ASCIIField.setText(ascii.binaryToASCII(binaryString));
 				}
 				else if(hexRadio.isSelected()) {
 					String hex = hexField.getText();
@@ -416,6 +420,7 @@ public class Main extends JFrame {
 					//hex to binary
 					String binary = Integer.toBinaryString(decimal);
 					binaryField.setText(binary);
+					ASCIIField.setText(ascii.hexToASCII(hex));
 					
 				}
 				else if(ASCIIRadio.isSelected()) {
